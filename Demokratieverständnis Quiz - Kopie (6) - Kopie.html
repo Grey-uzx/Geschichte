@@ -1,0 +1,1328 @@
+```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geschichts-Quiz Sammlung</title> <!-- Allgemeiner Titel -->
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Style für aktiven Tab-Button */
+        #tabNav button.active {
+            border-bottom-width: 2px;
+            border-color: #0ea5e9; /* border-sky-500 */
+            color: #0369a1; /* text-sky-700 */
+            font-weight: 600; /* font-semibold */
+        }
+        /* Style für Buttons in beantworteten Fragen (gilt global) */
+        .quiz-item[data-answered="true"] .mark-buttons button {
+            cursor: not-allowed;
+            opacity: 0.75;
+        }
+        /* Einfache Ladeanzeige (optional, gilt global) */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        /* Listenstil für Antworten (aus Marshallplan-Quiz übernommen) */
+        .answer ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            padding-left: 0;
+        }
+        .answer li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8 font-sans antialiased">
+
+    <!-- Haupt-Container für die gesamte Anwendung -->
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-lg overflow-hidden" id="multiQuizApp">
+        <header class="bg-gradient-to-r from-sky-600 to-cyan-500 p-5 text-white">
+            <!-- Allgemeiner Header-Titel -->
+            <h1 class="text-2xl md:text-3xl font-bold text-center">Geschichts-Quiz Sammlung</h1>
+        </header>
+
+        <!-- Einheitliche Tab Navigation für alle Quizze -->
+        <div class="border-b border-gray-200 bg-gray-50">
+            <nav id="tabNav" class="flex space-x-1 px-4 overflow-x-auto">
+                <!-- Tab Buttons für jedes Quiz -->
+                <button data-action="open-tab" data-tab-id="tab-marshall" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-sky-600 focus:outline-none focus:text-sky-600 transition duration-150 ease-in-out flex-shrink-0">
+                    Marshallplan
+                </button>
+                <button data-action="open-tab" data-tab-id="tab-besatzung" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-sky-600 focus:outline-none focus:text-sky-600 transition duration-150 ease-in-out flex-shrink-0">
+                    Besatzungsstatut
+                </button>
+                <button data-action="open-tab" data-tab-id="tab-gruendung" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-sky-600 focus:outline-none focus:text-sky-600 transition duration-150 ease-in-out flex-shrink-0">
+                    Gründung BRD/DDR
+                </button>
+                <button data-action="open-tab" data-tab-id="tab-staat" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-sky-600 focus:outline-none focus:text-sky-600 transition duration-150 ease-in-out flex-shrink-0">
+                    Staatsaufbau
+                </button>
+                 <button data-action="open-tab" data-tab-id="tab-potsdam" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-sky-600 focus:outline-none focus:text-sky-600 transition duration-150 ease-in-out flex-shrink-0">
+                    Potsdam '45
+                </button>
+                 <button data-action="open-tab" data-tab-id="tab-demokratie" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-sky-600 focus:outline-none focus:text-sky-600 transition duration-150 ease-in-out flex-shrink-0">
+                    Demokratievergleich
+                </button>
+            </nav>
+        </div>
+
+        <!-- Einheitlicher Tab Content Container für alle Quizze -->
+        <div id="tabContentContainer">
+
+            <!-- Tab 1: Marshallplan Quiz -->
+            <div id="tab-marshall" class="tab-content p-5 md:p-8 hidden">
+                <div class="space-y-6" id="quizContainer-marshall">
+                    <!-- Quiz Item 1 (Marshallplan) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">1. Warum könnte der Marshallplan als uneigennützig betrachtet werden?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <ul>
+                                <li>USA mit traditioneller Verbindung zu Europa, Hilfe als humanitärer Akt.</li>
+                                <li>USA hatten an der Befreiung Europas mitgewirkt, weitere Hilfe für den Wiederaufbau entspricht der bisherigen Politik.</li>
+                            </ul>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 2 (Marshallplan) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">2. Warum könnte der Marshallplan als eigennützig betrachtet werden?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                             <ul>
+                                <li>USA möchten Einfluss auf Westeuropa gewinnen (Gegengewicht zur UdSSR im beginnenden Kalten Krieg).</li>
+                                <li>Ziel: Bindung der Bevölkerung Europas an die USA, Förderung der Demokratie.</li>
+                                <li>Ankurbelung der Weltwirtschaft.</li>
+                                <li>Stärkung des Absatzmarktes in Europa für amerikanische Waren.</li>
+                             </ul>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Ergebnisse (spezifisch für Marshallplan-Quiz) -->
+                <div id="resultsSection-marshall" class="mt-10 bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-lg border border-gray-300 shadow-md">
+                    <h3 class="font-bold text-xl mb-5 text-center text-gray-700">📊 Ergebnisübersicht (Marshallplan)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mb-6">
+                        <div><p class="text-sm text-green-700 uppercase tracking-wider font-semibold">Gewusst</p><span id="correctCount-marshall" class="text-4xl font-bold text-green-600">0</span></div>
+                        <div><p class="text-sm text-red-700 uppercase tracking-wider font-semibold">Nicht Gewusst</p><span id="incorrectCount-marshall" class="text-4xl font-bold text-red-600">0</span></div>
+                        <div><p class="text-sm text-sky-700 uppercase tracking-wider font-semibold">Gesamt (%)</p><span id="totalScore-marshall" class="text-4xl font-bold text-sky-600">0</span>%</div>
+                    </div>
+                    <div class="text-center text-sm text-gray-500 mb-5">(<span id="totalAnsweredCount-marshall">0</span> von <span id="totalQuestionCount-marshall">2</span> Fragen beantwortet)</div>
+                    <button id="resetQuiz-marshall" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">🔄 Quiz zurücksetzen</button>
+                </div>
+            </div> <!-- Ende Tab 1 -->
+
+            <!-- Tab 2: Besatzungsstatut Quiz -->
+            <div id="tab-besatzung" class="tab-content p-5 md:p-8 hidden">
+                 <div class="space-y-6" id="quizContainer-besatzung">
+                    <!-- Quiz Item 1 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">1. Was war das Ziel des Besatzungsstatuts?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Kontrolle Deutschlands durch die Alliierten, um eine erneute Bedrohung durch Deutschland zu verhindern.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 2 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">2. Welche Maßnahmen zur Entmilitarisierung wurden getroffen?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Wissenschaft, Zivilluftfahrt und Industrie blieben unter Kontrolle der Alliierten.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 3 (Besatzung) -->
+                     <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">3. Wer bestimmte über die Außenpolitik der Bundesrepublik?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Alliierten behielten die Kontrolle über auswärtige Angelegenheiten und internationale Verträge.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 4 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">4. Welche wirtschaftlichen Bereiche wurden von den Alliierten kontrolliert?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Außenhandel, Devisenwirtschaft, Grundgesetz und Länder-Verfassungen.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 5 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">5. Warum wurde die Wirtschaft der Bundesrepublik von den Alliierten kontrolliert?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Um eine eigenständige wirtschaftliche und politische Entwicklung zunächst zu begrenzen und den Wiederaufbau unter Aufsicht zu steuern.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 6 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">6. Was ist ein Vorbehaltsrecht?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Das Recht der Alliierten, im Notfall wieder die volle Kontrolle über Deutschland zu übernehmen.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 7 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">7. Inwiefern war die Souveränität der Bundesrepublik durch das Besatzungsstatut eingeschränkt?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die wichtigsten politischen und wirtschaftlichen Entscheidungen lagen weiterhin bei den Alliierten.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 8 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">8. Konnte die Bundesrepublik Deutschland nach 1949 vollkommen unabhängig handeln?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Nein, sie war durch das Besatzungsstatut eingeschränkt und musste sich an alliierte Vorgaben halten.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 9 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">9. Wie konnte die Bundesrepublik ihre volle Souveränität erreichen?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                             <p>Durch schrittweise Verhandlungen und Abkommen mit den Alliierten, die mit der Zeit ihre Kontrolle lockerten.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 10 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">10. Welche Rolle spielten die Alliierten nach der Gründung der Bundesrepublik?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Sie überwachten und kontrollierten weiterhin wichtige Bereiche, um Deutschland unter Aufsicht zu halten.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 11 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">11. Warum wurde die Kontrolle durch die Alliierten erst nach und nach gelockert?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Um sicherzustellen, dass Deutschland eine stabile Demokratie wurde und keine erneute Gefahr darstellte.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 12 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">12. Welcher Staat wurde besonders von den West-Alliierten unterstützt?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Bundesrepublik Deutschland, um sie als demokratisches Gegenpol zur DDR zu stärken.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 13 (Besatzung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">13. Gab es eine vollständige Souveränität der Bundesrepublik nach ihrer Gründung?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Nein, erst mit späteren Verträgen wie den Pariser Verträgen (1954) und dem Zwei-plus-Vier-Vertrag (1990) wurde sie vollständig souverän.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Ergebnisse (spezifisch für Besatzungsstatut-Quiz) -->
+                <div id="resultsSection-besatzung" class="mt-10 bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-lg border border-gray-300 shadow-md">
+                    <h3 class="font-bold text-xl mb-5 text-center text-gray-700">📊 Ergebnisübersicht (Besatzungsstatut)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mb-6">
+                         <div><p class="text-sm text-green-700 uppercase tracking-wider font-semibold">Gewusst</p><span id="correctCount-besatzung" class="text-4xl font-bold text-green-600">0</span></div>
+                         <div><p class="text-sm text-red-700 uppercase tracking-wider font-semibold">Nicht Gewusst</p><span id="incorrectCount-besatzung" class="text-4xl font-bold text-red-600">0</span></div>
+                         <div><p class="text-sm text-sky-700 uppercase tracking-wider font-semibold">Gesamt (%)</p><span id="totalScore-besatzung" class="text-4xl font-bold text-sky-600">0</span>%</div>
+                    </div>
+                    <div class="text-center text-sm text-gray-500 mb-5">(<span id="totalAnsweredCount-besatzung">0</span> von <span id="totalQuestionCount-besatzung">13</span> Fragen beantwortet)</div>
+                    <button id="resetQuiz-besatzung" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">🔄 Quiz zurücksetzen</button>
+                </div>
+            </div> <!-- Ende Tab 2 -->
+
+             <!-- Tab 3: Gründung BRD/DDR Quiz -->
+            <div id="tab-gruendung" class="tab-content p-5 md:p-8 hidden">
+                 <div class="space-y-6" id="quizContainer-gruendung">
+                     <!-- Quiz Item 1 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">1. Welche beiden deutschen Staaten wurden 1949 gegründet?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Bundesrepublik Deutschland (BRD) und Deutsche Demokratische Republik (DDR).</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 2 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">2. Welche Besatzungsmächte waren für die Gründung der BRD verantwortlich?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Westmächte: USA, Großbritannien, Frankreich.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 3 (Gründung) -->
+                     <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">3. Welche Besatzungsmacht war für die Gründung der DDR verantwortlich?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Sowjetunion (UdSSR).</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 4 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">4. Welche politische Struktur wurde in der BRD aufgebaut?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Eine parlamentarische Demokratie mit Gewaltenteilung.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 5 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">5. Welche politische Struktur wurde in der DDR aufgebaut?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Ein sozialistischer Einparteienstaat mit zentralistischer Führung durch die SED.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 6 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">6. Welche Institution wurde in der BRD zur Ausarbeitung der Verfassung gegründet?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Der Parlamentarische Rat.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 7 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">7. Wer waren die Vorsitzenden des Parlamentarischen Rates?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Konrad Adenauer (CDU) und Carlo Schmid (SPD).</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 8 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">8. Wann wurde das Grundgesetz der BRD verabschiedet?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Am 23. Mai 1949.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 9 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">9. Welche grundlegenden Prinzipien enthält das Grundgesetz der BRD?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                             <p>Menschenrechte (Art. 1–19 GG), demokratischer und sozialer Rechtsstaat, Bundesstaat, Gewaltenteilung.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 10 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">10. Was bedeutet Gewaltenteilung im Grundgesetz?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Trennung von Legislative (Gesetzgebung), Exekutive (Regierung) und Judikative (Gerichtsbarkeit).</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 11 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">11. Was ist mit „Bundesstaat“ im Grundgesetz gemeint?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die BRD besteht aus mehreren Bundesländern mit eigener Regierung und eigenen Kompetenzen.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 12 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">12. Welches langfristige Ziel formulierte das Grundgesetz?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Einheit und Freiheit Deutschlands in freier Selbstbestimmung zu vollenden.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 13 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">13. Welche Institution wurde in der DDR zur Ausarbeitung der Verfassung gegründet?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Der Volksrat.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 14 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">14. Wer war Vorsitzender des Volksrates der DDR?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Otto Grotewohl (SED).</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 15 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">15. Wie wurde der Volkskongress in der DDR gewählt?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Nach Einheitslisten, die nur Kandidaten der Einheitspartei und ihrer Blockparteien enthielten.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 16 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">16. Wann wurde die Verfassung der DDR verkündet?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Am 7. Oktober 1949.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 17 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">17. Welche Merkmale hatte die DDR-Verfassung?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Scheinbare Gewährung von Grundrechten, scheindemokratischer Staatsaufbau (Wahlen), Einparteienstaat (sozialistischer Zentralismus), keine Gewaltenteilung.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 18 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">18. Warum war das Wahlsystem der DDR nicht demokratisch?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Es gab keine echte Wahlfreiheit, da nur Kandidaten der SED und ihrer Blockparteien aufgestellt wurden.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 19 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">19. Was bedeutete „sozialistischer Zentralismus“ in der DDR?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Alle politischen Entscheidungen wurden von der SED zentral gesteuert, ohne echte Mitbestimmung anderer Parteien oder Institutionen.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 20 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">20. Warum gab es in der DDR keine Gewaltenteilung?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Macht war in den Händen der SED konzentriert, Gerichte und Verwaltung waren nicht unabhängig.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 21 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">21. Welche Unterschiede bestanden zwischen dem Grundgesetz der BRD und der Verfassung der DDR?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die BRD hatte Demokratie, Gewaltenteilung und Föderalismus; die DDR war ein sozialistischer Zentralstaat mit Einparteiherrschaft.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 22 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">22. Welche Rolle spielte die Sowjetunion bei der Gründung der DDR?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Sie gab die Genehmigung zur Verfassung und sicherte die Macht der SED.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 23 (Gründung) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">23. Welche Rolle spielten die Westmächte bei der Gründung der BRD?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Sie unterstützten den demokratischen Aufbau und billigten das Grundgesetz.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Ergebnisse (spezifisch für Gründungs-Quiz) -->
+                 <div id="resultsSection-gruendung" class="mt-10 bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-lg border border-gray-300 shadow-md">
+                    <h3 class="font-bold text-xl mb-5 text-center text-gray-700">📊 Ergebnisübersicht (Gründung BRD/DDR)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mb-6">
+                         <div><p class="text-sm text-green-700 uppercase tracking-wider font-semibold">Gewusst</p><span id="correctCount-gruendung" class="text-4xl font-bold text-green-600">0</span></div>
+                         <div><p class="text-sm text-red-700 uppercase tracking-wider font-semibold">Nicht Gewusst</p><span id="incorrectCount-gruendung" class="text-4xl font-bold text-red-600">0</span></div>
+                         <div><p class="text-sm text-sky-700 uppercase tracking-wider font-semibold">Gesamt (%)</p><span id="totalScore-gruendung" class="text-4xl font-bold text-sky-600">0</span>%</div>
+                    </div>
+                    <div class="text-center text-sm text-gray-500 mb-5">(<span id="totalAnsweredCount-gruendung">0</span> von <span id="totalQuestionCount-gruendung">23</span> Fragen beantwortet)</div>
+                    <button id="resetQuiz-gruendung" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">🔄 Quiz zurücksetzen</button>
+                </div>
+            </div> <!-- Ende Tab 3 -->
+
+             <!-- Tab 4: Staatsaufbau BRD/DDR Quiz -->
+            <div id="tab-staat" class="tab-content p-5 md:p-8 hidden">
+                 <div class="space-y-6" id="quizContainer-staat">
+                      <!-- Quiz Item 1 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">1. Welche drei Staatsgewalten gibt es in einer Demokratie?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Legislative, Exekutive, Judikative.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 2 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">2. Welche Institution stellt die Legislative in der Bundesrepublik Deutschland dar?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Der Bundestag und der Bundesrat.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 3 (Staat) -->
+                     <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">3. Wie unterscheiden sich die Wahlen zum Bundestag und zur Volkskammer der DDR?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Bundestag: geheim, gleich und frei; Volkskammer: über Einheitslisten, keine freien Wahlen.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 4 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">4. Welche Aufgabe hat das Bundesverfassungsgericht?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Es überwacht die Einhaltung des Grundgesetzes und sichert die Gewaltenteilung.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 5 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">5. Warum gab es in der DDR keine echte Gewaltenteilung?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Weil die Volkskammer von der SED kontrolliert wurde und auch die Justiz nicht unabhängig war.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 6 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">6. Welche Institution wählte den Bundeskanzler in der Bundesrepublik Deutschland?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Der Bundestag mit demokratischer Mehrheit.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 7 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">7. Wie wurden die Minister und der Staatsrat in der DDR bestimmt?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Durch die Volkskammer, die wiederum nicht demokratisch gewählt war.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 8 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">8. Was war das oberste Organ der DDR?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Volkskammer, die aber von der SED dominiert wurde.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 9 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">9. Warum konnte die Opposition in der DDR nicht frei agieren?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                             <p>Weil es keine freien Wahlen gab und alle Institutionen der SED unterstanden.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 10 (Staat) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">10. Was war die grundlegende politische Systemunterscheidung zwischen BRD und DDR?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>BRD: parlamentarische Demokratie mit Gewaltenteilung, DDR: Einparteienstaat unter SED-Kontrolle.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+                 <!-- Ergebnisse (spezifisch für Staatsaufbau-Quiz) -->
+                <div id="resultsSection-staat" class="mt-10 bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-lg border border-gray-300 shadow-md">
+                    <h3 class="font-bold text-xl mb-5 text-center text-gray-700">📊 Ergebnisübersicht (Staatsaufbau BRD/DDR)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mb-6">
+                        <div><p class="text-sm text-green-700 uppercase tracking-wider font-semibold">Gewusst</p><span id="correctCount-staat" class="text-4xl font-bold text-green-600">0</span></div>
+                        <div><p class="text-sm text-red-700 uppercase tracking-wider font-semibold">Nicht Gewusst</p><span id="incorrectCount-staat" class="text-4xl font-bold text-red-600">0</span></div>
+                        <div><p class="text-sm text-sky-700 uppercase tracking-wider font-semibold">Gesamt (%)</p><span id="totalScore-staat" class="text-4xl font-bold text-sky-600">0</span>%</div>
+                    </div>
+                    <div class="text-center text-sm text-gray-500 mb-5">(<span id="totalAnsweredCount-staat">0</span> von <span id="totalQuestionCount-staat">10</span> Fragen beantwortet)</div>
+                    <button id="resetQuiz-staat" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">🔄 Quiz zurücksetzen</button>
+                </div>
+            </div> <!-- Ende Tab 4 -->
+
+             <!-- Tab 5: Potsdamer Konferenz Quiz -->
+            <div id="tab-potsdam" class="tab-content p-5 md:p-8 hidden">
+                 <div class="space-y-6" id="quizContainer-potsdam">
+                      <!-- Quiz Item 1 (Potsdam) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">1. Wann fand die Potsdamer Konferenz statt und welche Politiker nahmen daran teil?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>17. Juli bis 2. August 1945.<br>Teilnehmer: Harry S. Truman (USA), Winston Churchill / Clement Attlee (GB - Wechsel während der Konferenz), Josef Stalin (UdSSR) und deren Außenminister.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 2 (Potsdam) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">2. Welche wirtschaftlichen und sozialen Probleme gab es im Frühjahr/Sommer 1945 in Deutschland?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Massive Zerstörung (Infrastruktur, Städte z.T. >70%), extreme Wohnungsnot, Hungersnot & Mangelernährung (Rationierung), Zusammenbruch Transport & Versorgung, große Flüchtlings-/Vertriebenenströme, Unsicherheit & Zukunftsangst.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 3 (Potsdam) -->
+                     <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">3. Welche vier (bzw. fünf) grundlegenden politischen Prinzipien ("Ds") wurden für Deutschland beschlossen?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p><strong>D</strong>emilitarisierung, <strong>D</strong>enazifizierung, <strong>D</strong>emokratisierung, <strong>D</strong>ezentralisierung (polit. Struktur) und <strong>D</strong>emontage (Industrie als Reparation).</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 4 (Potsdam) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">4. Was war das Ziel der Demilitarisierung und Demontage?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p><strong>Demilitarisierung:</strong> Vollständige Entwaffnung, Auflösung Streitkräfte, Verbot Militärproduktion, Zerstörung militär. Anlagen.<br><strong>Demontage:</strong> Abbau Industrieanlagen (v.a. Rüstung) als Reparation & zur Beseitigung von Kriegspotenzial.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 5 (Potsdam) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">5. Welche Maßnahmen umfasste die Denazifizierung?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Auflösung NSDAP & Gliederungen, Aufhebung NS-Gesetze, Entfernung von Nazis aus öffentl. Ämtern & Positionen (Entnazifizierungsverfahren), Verfolgung & Bestrafung von Kriegsverbrechern (Nürnberger Prozesse).</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 6 (Potsdam) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">6. Welche Schritte gehörten zur Demokratisierung Deutschlands?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Wiederherstellung demokrat. Grundrechte (Meinung, Presse, Religion), Zulassung demokrat. Parteien, Förderung Gewerkschaften, Vorbereitung lokaler/regionaler Selbstverwaltung, Umgestaltung Bildungswesen.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 7 (Potsdam) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">7. Wie wurde Deutschland politisch organisiert (Dezentralisierung)?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Aufteilung Dt. & Berlins in 4 Besatzungszonen (USA, GB, F, UdSSR). Deutschland sollte wirtschaftl. Einheit sein, aber polit. Macht dezentralisiert (lokal/regional) werden, um Machtkonzentration zu verhindern.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 8 (Potsdam) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">8. Welche Institution entschied über alle Besatzungszonen hinweg?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Der <strong>Alliierte Kontrollrat</strong> (Sitz: Berlin), bestehend aus den 4 Oberbefehlshabern. Entscheidungen mussten einstimmig sein (was später zum Problem wurde).</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 9 (Potsdam) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">9. Welche territorialen Veränderungen wurden bezüglich der deutschen Ostgebiete beschlossen?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                             <p>Gebiete östlich der Oder-Neiße-Linie (Schlesien, Pommern etc.) kamen unter polnische Verwaltung, nördl. Ostpreußen unter sowjetische Verwaltung (endgültige Grenze sollte Friedensvertrag regeln). Billigung der "Überführung" (Vertreibung) der dt. Bevölkerung aus diesen Gebieten und Osteuropa.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+                 <!-- Ergebnisse (spezifisch für Potsdam-Quiz) -->
+                <div id="resultsSection-potsdam" class="mt-10 bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-lg border border-gray-300 shadow-md">
+                    <h3 class="font-bold text-xl mb-5 text-center text-gray-700">📊 Ergebnisübersicht (Potsdamer Konferenz)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mb-6">
+                        <div><p class="text-sm text-green-700 uppercase tracking-wider font-semibold">Gewusst</p><span id="correctCount-potsdam" class="text-4xl font-bold text-green-600">0</span></div>
+                        <div><p class="text-sm text-red-700 uppercase tracking-wider font-semibold">Nicht Gewusst</p><span id="incorrectCount-potsdam" class="text-4xl font-bold text-red-600">0</span></div>
+                        <div><p class="text-sm text-sky-700 uppercase tracking-wider font-semibold">Gesamt (%)</p><span id="totalScore-potsdam" class="text-4xl font-bold text-sky-600">0</span>%</div>
+                    </div>
+                    <div class="text-center text-sm text-gray-500 mb-5">(<span id="totalAnsweredCount-potsdam">0</span> von <span id="totalQuestionCount-potsdam">9</span> Fragen beantwortet)</div>
+                    <button id="resetQuiz-potsdam" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">🔄 Quiz zurücksetzen</button>
+                </div>
+            </div> <!-- Ende Tab 5 -->
+
+             <!-- Tab 6: Demokratievergleich Quiz -->
+            <div id="tab-demokratie" class="tab-content p-5 md:p-8 hidden">
+                 <div class="space-y-6" id="quizContainer-demokratie">
+                    <!-- Quiz Item 1 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">1. Welche zwei unterschiedlichen Demokratieverständnisse gab es in Deutschland während des Kalten Krieges?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Das westliche (BRD) und das östliche (DDR) Demokratieverständnis.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 2 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">2. Welche Prinzipien waren typisch für das westliche Demokratieverständnis?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Gewaltenteilung, Parteienkonkurrenz, freie, gleiche und geheime Wahlen, Pluralismus der Ideologien, unabhängige Verfassungsgerichtsbarkeit, parlamentarische Opposition, periodischer Machtwechsel.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 3 (Demokratie) -->
+                     <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">3. Welche Prinzipien prägten das östliche Demokratieverständnis?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Gewaltkonzentration, Einheitsfront der Parteien, Listenwahl, Marxismus-Leninismus als verbindliche Lehre, Verfassungsauslegung durch die Exekutive, Allparteienregierung, Machtmonopol der SED.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 4 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">4. Was bedeutet „Gewaltenteilung“ im westlichen Verständnis?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Trennung von Legislative, Exekutive und Judikative zur Verhinderung von Machtmissbrauch.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 5 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">5. Was bedeutet „Gewaltenkonzentration“ im östlichen Verständnis?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die gesamte Macht lag in den Händen der SED und wurde nicht durch unabhängige Institutionen kontrolliert.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Quiz Item 6 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">6. Was unterscheidet die Parteienlandschaft in West- und Ostdeutschland?</h3>
+                         <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>In Westdeutschland gab es Parteienkonkurrenz, in Ostdeutschland eine Einheitsfront der Parteien unter Führung der SED.</p>
+                            <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 7 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">7. Was sind „freie, gleiche und geheime Wahlen“?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Wahlen, bei denen jeder Bürger ohne Druck seine Stimme abgeben kann, wobei jede Stimme gleich viel zählt.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 8 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">8. Warum war die Listenwahl in der DDR undemokratisch?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Es gab nur von der SED genehmigte Kandidaten, keine echte Wahlmöglichkeit.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 9 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">9. Was bedeutet „Pluralismus der Ideologien“?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                             <p>Unterschiedliche politische Meinungen waren erlaubt und konnten öffentlich vertreten werden.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 10 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">10. Warum war der Marxismus-Leninismus in der DDR verbindlich?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Er war die staatliche Ideologie und Grundlage aller politischen Entscheidungen.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 11 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">11. Welche Rolle spielte das Verfassungsgericht in der BRD?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Es war unabhängig und konnte Gesetze auf ihre Verfassungsmäßigkeit prüfen.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 12 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">12. Wer legte die Verfassung in der DDR aus?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die Exekutive (Regierung), vor allem die SED, entschied über die Bedeutung und Anwendung der Verfassung.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 13 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">13. Was bedeutet „parlamentarische Opposition“ im westlichen Verständnis?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Parteien, die nicht an der Regierung beteiligt waren, konnten offen Kritik üben und politische Alternativen vorschlagen.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 14 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">14. Warum gab es in der DDR keine parlamentarische Opposition?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Alle Parteien waren in der Einheitsfront organisiert und mussten die Politik der SED unterstützen.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 15 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">15. Was bedeutet „periodischer Machtwechsel“ im Westen?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Nach jeder Wahl konnte eine neue Regierung gebildet werden, abhängig von Wählerwillen.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quiz Item 16 (Demokratie) -->
+                    <div class="quiz-item border border-gray-200 p-4 rounded-lg shadow-sm bg-white transition-all duration-200" data-answered="false">
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">16. Warum gab es in der DDR kein periodisches Machtwechsel?</h3>
+                        <button data-action="toggle-answer" class="inline-flex items-center bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400">Antwort zeigen</button>
+                        <div class="answer hidden mt-4 bg-sky-50 p-4 rounded-md border border-sky-200 text-gray-700 space-y-3">
+                            <p>Die SED hatte ein dauerhaftes Machtmonopol und entschied über alle politischen Fragen.</p>
+                             <div class="mark-buttons mt-3 border-t border-sky-100 pt-3">
+                                <p class="text-sm text-gray-600 mb-2 feedback-text">Wussten Sie die Antwort?</p>
+                                <button data-action="mark-answer" data-value="true" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2 text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400">Ja 👍</button>
+                                <button data-action="mark-answer" data-value="false" class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400">Nein 👎</button>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+                 <!-- Ergebnisse (spezifisch für Demokratievergleich-Quiz) -->
+                <div id="resultsSection-demokratie" class="mt-10 bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-lg border border-gray-300 shadow-md">
+                    <h3 class="font-bold text-xl mb-5 text-center text-gray-700">📊 Ergebnisübersicht (Demokratievergleich)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mb-6">
+                         <div><p class="text-sm text-green-700 uppercase tracking-wider font-semibold">Gewusst</p><span id="correctCount-demokratie" class="text-4xl font-bold text-green-600">0</span></div>
+                         <div><p class="text-sm text-red-700 uppercase tracking-wider font-semibold">Nicht Gewusst</p><span id="incorrectCount-demokratie" class="text-4xl font-bold text-red-600">0</span></div>
+                         <div><p class="text-sm text-sky-700 uppercase tracking-wider font-semibold">Gesamt (%)</p><span id="totalScore-demokratie" class="text-4xl font-bold text-sky-600">0</span>%</div>
+                    </div>
+                    <div class="text-center text-sm text-gray-500 mb-5">(<span id="totalAnsweredCount-demokratie">0</span> von <span id="totalQuestionCount-demokratie">16</span> Fragen beantwortet)</div>
+                    <button id="resetQuiz-demokratie" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">🔄 Quiz zurücksetzen</button>
+                </div>
+            </div> <!-- Ende Tab 6 -->
+
+        </div> <!-- Ende Tab Content Container -->
+    </div> <!-- Ende multiQuizApp -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const multiQuizApp = document.getElementById('multiQuizApp');
+            const tabNav = document.getElementById('tabNav');
+            const tabContentContainer = document.getElementById('tabContentContainer');
+
+            // --- Tab Handling (Global) ---
+            function activateTab(tabIdToActivate) {
+                if (!tabContentContainer || !tabNav) {
+                    console.error("Tab container or navigation missing.");
+                    return;
+                }
+                // Hide all tab contents
+                tabContentContainer.querySelectorAll('.tab-content').forEach(tabContent => {
+                    tabContent.classList.add('hidden');
+                });
+                // Deactivate all tab buttons
+                tabNav.querySelectorAll('button[data-action="open-tab"]').forEach(button => {
+                    button.classList.remove('active');
+                });
+                // Show target tab content
+                const targetTabContent = document.getElementById(tabIdToActivate);
+                if (targetTabContent) {
+                    targetTabContent.classList.remove('hidden');
+                } else {
+                    console.warn(`Tab content with ID "${tabIdToActivate}" not found.`);
+                }
+                // Activate target tab button
+                const targetTabButton = tabNav.querySelector(`button[data-tab-id="${tabIdToActivate}"]`);
+                if (targetTabButton) {
+                    targetTabButton.classList.add('active');
+                } else {
+                     console.warn(`Tab button for ID "${tabIdToActivate}" not found.`);
+                }
+            }
+
+            // Initial tab activation (activate the first tab)
+            const firstTabButton = tabNav.querySelector('button[data-action="open-tab"]');
+            if (firstTabButton) {
+                 activateTab(firstTabButton.dataset.tabId);
+            }
+
+
+            // Event Listener for Tab Navigation (Global)
+            if (tabNav) {
+                tabNav.addEventListener('click', (event) => {
+                    const target = event.target.closest('button[data-action="open-tab"]');
+                    if (target) {
+                        const tabId = target.dataset.tabId;
+                        if (tabId) {
+                            activateTab(tabId);
+                        }
+                    }
+                });
+            } else {
+                console.warn("Tab navigation element not found.");
+            }
+
+            // --- Quiz Instance Initialization (Run for each quiz) ---
+            function initializeQuiz(quizIdSuffix) {
+                const quizTabContent = document.getElementById(`tab-${quizIdSuffix}`);
+                if (!quizTabContent) {
+                    console.warn(`Quiz tab content for suffix "${quizIdSuffix}" not found.`);
+                    return;
+                }
+
+                // Find elements *within this specific quiz tab*
+                const quizContainer = quizTabContent.querySelector(`#quizContainer-${quizIdSuffix}`);
+                const resultsSection = quizTabContent.querySelector(`#resultsSection-${quizIdSuffix}`);
+                const correctCountEl = resultsSection ? resultsSection.querySelector(`#correctCount-${quizIdSuffix}`) : null;
+                const incorrectCountEl = resultsSection ? resultsSection.querySelector(`#incorrectCount-${quizIdSuffix}`) : null;
+                const totalScoreEl = resultsSection ? resultsSection.querySelector(`#totalScore-${quizIdSuffix}`) : null;
+                const totalAnsweredCountEl = resultsSection ? resultsSection.querySelector(`#totalAnsweredCount-${quizIdSuffix}`) : null;
+                const totalQuestionCountEl = resultsSection ? resultsSection.querySelector(`#totalQuestionCount-${quizIdSuffix}`) : null;
+                const resetQuizBtn = resultsSection ? resultsSection.querySelector(`#resetQuiz-${quizIdSuffix}`) : null;
+
+                if (!quizContainer || !resultsSection || !correctCountEl || !incorrectCountEl || !totalScoreEl || !totalAnsweredCountEl || !totalQuestionCountEl || !resetQuizBtn) {
+                    console.error(`Initialization failed for quiz "${quizIdSuffix}": One or more essential elements are missing.`);
+                    return;
+                }
+
+                // --- Quiz Specific State (Local to this instance) ---
+                let allQuizItems = quizContainer.querySelectorAll('.quiz-item');
+                let totalQuestions = allQuizItems.length;
+                let correctAnswers = 0;
+                let incorrectAnswers = 0;
+                let totalAnswered = 0;
+
+                // Initial score update
+                updateScores();
+
+                // --- Event Listener for Quiz Interactions (Scoped to this instance) ---
+                quizContainer.addEventListener('click', (event) => {
+                    const target = event.target;
+                    const quizItem = target.closest('.quiz-item');
+                    if (!quizItem) return;
+
+                    if (target.matches('[data-action="toggle-answer"]')) {
+                        handleToggleAnswer(target, quizItem);
+                    }
+                    if (target.matches('[data-action="mark-answer"]')) {
+                        handleMarkAnswer(target, quizItem);
+                    }
+                });
+
+                // --- Event Listener for Reset Button (Scoped to this instance) ---
+                resetQuizBtn.addEventListener('click', handleResetQuiz);
+
+
+                // --- Quiz Handler Functions (Scoped to this instance) ---
+                function handleToggleAnswer(button, quizItem) {
+                    const answerDiv = quizItem.querySelector('.answer');
+                    if (answerDiv) {
+                        const isHidden = answerDiv.classList.toggle('hidden');
+                        button.textContent = isHidden ? 'Antwort zeigen' : 'Antwort verbergen';
+                    }
+                }
+
+                function handleMarkAnswer(button, quizItem) {
+                    if (quizItem.dataset.answered === 'true') return;
+                    const knewAnswer = button.dataset.value === 'true';
+                    if (knewAnswer) correctAnswers++; else incorrectAnswers++;
+                    totalAnswered++;
+                    quizItem.dataset.answered = 'true';
+                    const markButtonsContainer = quizItem.querySelector('.mark-buttons');
+                    if (markButtonsContainer) {
+                        markButtonsContainer.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                        const pElement = markButtonsContainer.querySelector('.feedback-text');
+                        if (pElement) {
+                            pElement.innerHTML = `Wussten Sie die Antwort? ${knewAnswer
+                                ? '<span class="text-green-600 font-semibold">(Gewusst ✅)</span>'
+                                : '<span class="text-red-600 font-semibold">(Nicht gewusst ❌)</span>'}`;
+                        }
+                    }
+                    updateScores();
+                }
+
+                function handleResetQuiz() {
+                    multiQuizApp.classList.add('loading'); // Use main app container for loading indicator
+                    correctAnswers = 0;
+                    incorrectAnswers = 0;
+                    totalAnswered = 0;
+                    allQuizItems = quizContainer.querySelectorAll('.quiz-item'); // Re-query items within this container
+                    totalQuestions = allQuizItems.length; // Re-count in case something changed (unlikely here)
+
+                    allQuizItems.forEach(item => {
+                        const answerDiv = item.querySelector('.answer');
+                        if (answerDiv && !answerDiv.classList.contains('hidden')) {
+                            answerDiv.classList.add('hidden');
+                        }
+                        const toggleBtn = item.querySelector('[data-action="toggle-answer"]');
+                        if (toggleBtn) toggleBtn.textContent = 'Antwort zeigen';
+                        item.dataset.answered = 'false';
+                        const markButtonsContainer = item.querySelector('.mark-buttons');
+                        if (markButtonsContainer) {
+                            markButtonsContainer.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                            const pElement = markButtonsContainer.querySelector('.feedback-text');
+                            if (pElement) pElement.innerHTML = "Wussten Sie die Antwort?";
+                        }
+                    });
+                    updateScores();
+                    setTimeout(() => {
+                        multiQuizApp.classList.remove('loading');
+                    }, 150);
+                }
+
+                function updateScores() {
+                    correctCountEl.textContent = correctAnswers;
+                    incorrectCountEl.textContent = incorrectAnswers;
+                    totalAnsweredCountEl.textContent = totalAnswered;
+                    totalQuestionCountEl.textContent = totalQuestions; // Display total questions for this quiz
+                    const percentage = totalQuestions > 0
+                        ? Math.round((correctAnswers / totalQuestions) * 100)
+                        : 0;
+                    totalScoreEl.textContent = percentage;
+                }
+            } // --- End of initializeQuiz function ---
+
+            // Initialize each quiz instance by its suffix
+            initializeQuiz('marshall');
+            initializeQuiz('besatzung');
+            initializeQuiz('gruendung');
+            initializeQuiz('staat');
+            initializeQuiz('potsdam');
+            initializeQuiz('demokratie');
+
+        }); // --- End of DOMContentLoaded ---
+    </script>
+
+</body>
+</html>
